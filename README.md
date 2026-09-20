@@ -1,4 +1,12 @@
-# BANK SAMPAH - STRUKTUR LENGKAP PHP + MYSQL
+# MINVESTA - STRUKTUR LENGKAP PHP + MYSQL
+
+## Login
+
+1. Buka halaman `login.php`.
+2. Gunakan email dan password akun Minvesta yang sudah terdaftar.
+3. Setelah login berhasil, sistem akan mengarahkan ke dashboard aplikasi.
+
+Akses aplikasi Minvesta menggunakan akun lokal yang memiliki email dan password terdaftar. Login Google tidak tersedia di versi ini.
 
 Versi ini disusun mengikuti pola layar pada referensi pengguna:
 

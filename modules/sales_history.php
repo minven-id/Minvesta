@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../config/config.php';
+ensure_sales_columns();
 $pdo=db(); $cid=current_company_id();
 ensure_transaction_documentation_columns();
 $stockValue=0; $totalStock=0;
@@ -22,7 +23,7 @@ $active='sales_history';$title='Riwayat Penjualan';require __DIR__.'/../includes
   <div class="card stat"><div class="label">Total Berat Stok</div><div class="value"><?=number_format($totalStock,2,',','.')?> kg</div></div>
 </div>
 <div class="section card">
-  <form class="toolbar" method="get">
+  <form class="report-filter" method="get">
     <label class="muted">Dari <input type="date" name="from" value="<?=e($from)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <label class="muted">Sampai <input type="date" name="to" value="<?=e($to)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <button class="btn sm">Filter</button>

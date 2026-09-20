@@ -2,7 +2,7 @@
 require_login();
 $c = company();
 $u = current_user();
-$livePages = ['dashboard','wallets','deposit_history','withdrawal_history','sales_history','customer_mutation','reports','report_cashflow','report_customers','report_deposits','report_sales','report_stock','report_wallet'];
+$livePages = ['dashboard','wallets','deposit_history','withdrawal_history','sales_history','customer_mutation','reports','report_cashflow','report_customers','report_deposits','report_sales','report_stock','report_wallet','report_daily'];
 $isLivePage = in_array($active ?? '', $livePages, true);
 // Tentukan base path relatif: jika di modules/, naik 1 folder
 $_rp = (strpos(basename($_SERVER['PHP_SELF'] ?? ''),'.php')!==false && strpos(($_SERVER['SCRIPT_NAME'] ?? ''),'modules/')!==false) ? '../' : '';
@@ -11,9 +11,11 @@ $_rp = (strpos(basename($_SERVER['PHP_SELF'] ?? ''),'.php')!==false && strpos(($
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title><?= e($title ?? 'Dashboard') ?> - <?= e($c['name']) ?></title>
-<link rel="icon" type="image/png" href="<?=$_rp?>assets/images/logo.png">
 <style>
 /* === CSS VARS FALLBACK (Pastel Sage Palette) === */
 :root{
@@ -40,10 +42,11 @@ svg{width:17px;height:17px;flex:0 0 auto}
   color:#fff;padding:20px 13px;position:fixed;inset:0 auto 0 0;overflow:auto;
   box-shadow:4px 0 30px rgba(20,83,45,.16),1px 0 0 rgba(255,255,255,.08) inset,0 0 0 1px rgba(74,222,128,.10);z-index:40}
 .brand{display:flex;gap:12px;align-items:center;padding:8px 10px 18px;border-bottom:1px solid rgba(187,247,208,.14);margin-bottom:16px}
-.brand-mark{width:70px;height:70px;border-radius:14px;
+.brand-mark{width:44px;height:44px;border-radius:14px;
   background:radial-gradient(circle at 30% 30%,#fff,#f0fdf4 50%,#bbf7d0 100%);
   color:var(--c-sage-800);display:grid;place-items:center;font-weight:900;font-size:21px;
-  box-shadow:0 8px 22px rgba(0,0,0,.20),0 0 0 1px rgba(255,255,255,.55) inset,0 2px 0 rgba(255,255,255,.6) inset;position:relative}
+  box-shadow:0 8px 22px rgba(0,0,0,.20),0 0 0 1px rgba(255,255,255,.55) inset,0 2px 0 rgba(255,255,255,.6) inset;position:relative;overflow:hidden}
+.brand-mark img{width:100%;height:100%;object-fit:contain;border-radius:14px}
 .brand-mark::after{content:'';position:absolute;inset:2px;border-radius:12px;background:linear-gradient(135deg,rgba(255,255,255,.6),transparent 45%);pointer-events:none}
 .app{display:flex;min-height:100vh}
 body{margin:0;
@@ -51,7 +54,7 @@ body{margin:0;
     radial-gradient(1200px 600px at 95% -10%,rgba(134,239,172,.08),transparent 60%),
     radial-gradient(900px 500px at -5% 110%,rgba(74,222,128,.06),transparent 55%),
     linear-gradient(180deg,#fbfaf7 0%,#f7f5ef 100%);
-  color:var(--c-ink-800);font-family:'Segoe UI',Inter,Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  color:var(--c-ink-800);font-family:'Manrope','Plus Jakarta Sans','Segoe UI',Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
 .company-pill{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.07));
   padding:12px 13px;border-radius:var(--r-md);margin-bottom:16px;font-size:12.5px;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
@@ -77,15 +80,15 @@ nav a.active::after{content:'';position:absolute;right:10px;top:50%;transform:tr
 .nav-label::before{content:'';width:12px;height:1.5px;background:linear-gradient(90deg,var(--c-gold-400),transparent);border-radius:2px}
 .nav-label:first-of-type{margin-top:8px;padding-top:0;border-top:0}
 .nav-label:first-of-type::before{display:none}
-.main{margin-left:268px;width:calc(100% - 268px);padding:0 40px 56px;min-width:0}
+.main{margin-left:268px;width:calc(100% - 268px);padding:0 15px 56px;min-width:0}
 .topbar{height:70px;
   background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(247,245,239,.85));
   backdrop-filter:saturate(160%) blur(14px);-webkit-backdrop-filter:saturate(160%) blur(14px);
-  border-bottom:1px solid rgba(226,232,240,.7);margin:0 -40px 28px;padding:0 40px;
-  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(226,232,240,.7);margin:0 -15px 28px;padding:0 15px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
   box-shadow:0 1px 0 rgba(255,255,255,.85) inset,0 2px 10px rgba(22,101,52,.04);
   position:sticky;top:0;z-index:30}
-.topbar::after{content:'';position:absolute;left:40px;right:40px;bottom:0;height:1px;
+.topbar::after{content:'';position:absolute;left:15px;right:15px;bottom:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(34,197,94,.35),transparent);opacity:.7}
 .btn{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:var(--r-sm);padding:11px 19px;
   background:linear-gradient(180deg,#86efac 0%,#4ade80 40%,#22c55e 75%,#16a34a 100%);color:#fff;
@@ -117,6 +120,8 @@ nav a.wallet-link.active{background:linear-gradient(180deg,rgba(134,239,172,.26)
   border-color:rgba(187,247,208,.22);transform:translateX(2px)}
 .topbar .muted{display:block;font-size:10.5px;color:var(--c-ink-500);letter-spacing:.6px;margin-bottom:3px;font-weight:700;text-transform:uppercase}
 .topbar b{font-size:15px;color:var(--c-ink-900);font-weight:750;letter-spacing:-.15px}
+.topbar-title{flex:1;min-width:0}
+.topbar-title b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-height:1.2;
   background:linear-gradient(180deg,var(--c-ink-900),var(--c-sage-800));
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -188,8 +193,10 @@ h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-heig
 .section-head h2{font-size:18px;margin:0;font-weight:750;color:var(--c-ink-800);letter-spacing:-.25px;display:flex;align-items:center;gap:10px}
 .section-head h2::before{content:'';width:4px;height:20px;border-radius:3px;background:linear-gradient(180deg,var(--c-sage-500),var(--c-gold-400));box-shadow:0 0 0 2px rgba(34,197,94,.08)}
 @media(max-width:1200px){.wallet-grid{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:900px){.sidebar{width:232px}.main{margin-left:232px;width:calc(100% - 232px);padding:0 24px 48px}.topbar{margin:0 -24px 26px;padding:0 24px;height:68px}.grid{grid-template-columns:1fr 1fr}.wallet-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}h1{font-size:22px}.stat .value{font-size:24px}}
-@media(max-width:640px){.sidebar{position:static;width:100%;height:auto}.main{margin-left:0;width:100%;padding:0 18px 42px}.topbar{margin:0 -18px 22px;padding:0 18px;height:64px}.grid{grid-template-columns:1fr;gap:18px}.wallet-grid{grid-template-columns:1fr;gap:16px}h1{font-size:20px}.stat .value{font-size:22px}}
+@media(max-width:900px){.sidebar{width:232px}.main{margin-left:232px;width:calc(100% - 232px);padding:0 15px 48px}.topbar{margin:0 -15px 26px;padding:0 15px;height:68px}.grid{grid-template-columns:1fr 1fr}.wallet-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}h1{font-size:22px}.stat .value{font-size:24px}}
+@media(max-width:640px){.sidebar{position:static;width:100%;height:auto}.main{margin-left:0;width:100%;padding:0 18px 42px}.topbar{margin:0 -18px 22px;padding:0 18px;height:64px}.grid{grid-template-columns:1fr;gap:18px}.wallet-grid{grid-template-columns:1fr;gap:16px}h1{font-size:20px}.stat .value{font-size:22px}.topbar-title{display:none}.topbar-actions{margin-left:auto}.menu-toggle{display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid var(--c-line);border-radius:var(--r-sm);background:#fff;color:var(--c-sage-800);cursor:pointer}.menu-toggle svg{width:19px;height:19px}}
+@media(max-width:480px){.sidebar{padding:16px 10px}.brand{padding:6px 8px 14px}.brand-mark{width:40px;height:40px;border-radius:12px;font-size:18px}.brand b{font-size:14px}.brand small{font-size:9px}.company-pill{padding:10px 12px;font-size:11.5px}.main{padding:0 14px 36px}.topbar{margin:0 -14px 20px;padding:0 14px;height:60px}.grid{gap:16px}.card{padding:18px}.wallet{padding:16px}.wallet .balance{font-size:22px}.h1{font-size:18px}.table th,.table td{padding:10px 12px;font-size:12px}}
+@media(min-width:761px) and (max-width:1024px){.sidebar{width:240px}.main{margin-left:240px;width:calc(100% - 240px);padding:0 15px 48px}.topbar{margin:0 -15px 28px;padding:0 15px;height:68px}.grid{gap:20px}.wallet-grid{gap:18px}}
 /* === FALLBACK: Extra komponen pelengkap === */
 .badge.sage{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#15803d;box-shadow:0 0 0 1px rgba(34,197,94,.26) inset,0 1px 0 rgba(255,255,255,.6) inset}
 .toolbar label{font-size:12px;font-weight:700;color:var(--c-sage-900);letter-spacing:.2px;display:inline-flex;align-items:center;gap:8px}
@@ -204,23 +211,67 @@ h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-heig
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?=$_rp?>assets/app.css?v=<?=filemtime(__DIR__.'/../assets/app.css')?>">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<?=$_rp?>assets/app.css?v=<?=time()?>">
+<!-- Export Libraries -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// Export XLSX
+function exportToExcel(tableId, filename) {
+  const table = document.getElementById(tableId);
+  const wb = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
+  XLSX.writeFile(wb, filename + '.xlsx');
+}
+
+// Export PDF
+function exportToPDF(tableId, filename, title) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const table = document.getElementById(tableId);
+
+  doc.setFontSize(18);
+  doc.text(title, 14, 22);
+  doc.setFontSize(10);
+  doc.text('Minvesta - Bank Sampah Management System', 14, 30);
+
+  const autoTable = (doc.autoTable || jsPDF.autoTable);
+  autoTable.call(doc, {
+    html: table,
+    startY: 40,
+    theme: 'grid',
+    headStyles: { fillColor: [22, 101, 52] },
+    styles: { fontSize: 8 },
+    margin: { top: 40, right: 10, bottom: 10, left: 10 }
+  });
+
+  doc.save(filename + '.pdf');
+}
+
+// Print
+function printReport() {
+  window.print();
+}
+</script>
+<link rel="icon" type="image/png" href="<?=$_rp?>assets/favicon.png">
 </head>
 <body data-live-refresh="<?=$isLivePage?'true':'false'?>">
 <div class="app">
-<aside class="sidebar">
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<aside class="sidebar" id="app-sidebar">
   <div class="brand">
     <div class="brand-mark">
-      <img src="<?=$_rp?>assets/images/logo.png" alt="Minvesta Logo" style="width:100%;height:100%;object-fit:contain;border-radius:14px;">
+      <img src="<?=$_rp?>assets/logo/ChatGPT Image 12 Sep 2026, 22.24.30.png" alt="Minvesta Logo">
     </div>
     <div>
-      <b>Bank Sampah</b>
-      <small>Minvesta</small>
+      <b>Minvesta</b>
+      <small>Waste Management Suite</small>
     </div>
   </div>
   <div class="company-pill">
-    <span class="user-meta"><b><?=e($u['name'])?></b><small>@<?=e($u['username'])?> · <?=e($u['role'])?></small></span>
+    <span class="user-meta"><b><?=e($u['name'])?></b><small><?=e($u['email'] ?? '')?> · <?=e($u['role'])?></small></span>
   </div>
   <nav>
     <!-- 🏠 DASHBOARD -->
@@ -248,8 +299,8 @@ h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-heig
       <span>Dompet / Rekening</span>
     </a>
 
-    <!-- 💸 TRANSAKSI HARIAN (5 menu) -->
-    <button class="nav-label" type="button" aria-expanded="false">Transaksi Harian</button>
+    <!-- 💸 OPERASIONAL UTAMA -->
+    <button class="nav-label" type="button" aria-expanded="false">Operasional</button>
     <a href="<?=$_rp?>modules/deposit.php" class="<?=($active??'')==='deposit'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>
       <span>Setoran Sampah</span>
@@ -263,16 +314,24 @@ h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-heig
       <span>Penjualan Sampah</span>
     </a>
     <a href="<?=$_rp?>modules/transfer.php" class="<?=($active??'')==='transfer'?'active':''?>">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-      <span>Transfer Dompet</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7h12l-3-3"/><path d="M16 17H4l3 3"/><path d="M8 7v10"/><path d="M16 17V7"/></svg>
+      <span>Transfer Antar Dompet</span>
     </a>
-    <a href="<?=$_rp?>modules/transactions.php" class="<?=($active??'')==='transactions'||($active??'')==='income'||($active??'')==='expense'?'active':''?>">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <a href="<?=$_rp?>modules/customer_mutation.php" class="<?=($active??'')==='customer_mutation'?'active':''?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18"/><path d="M12 3v18"/><path d="M4 7l8-4 8 4"/><path d="M4 17l8 4 8-4"/></svg>
+      <span>Mutasi Nasabah</span>
+    </a>
+    <a href="<?=$_rp?>modules/transactions.php" class="<?=($active??'')==='transactions'?'active':''?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16"/><path d="M7 16V5"/><path d="M12 16V9"/><path d="M17 16v-4"/></svg>
       <span>Catatan Keuangan</span>
     </a>
+    <a href="<?=$_rp?>modules/transaction.php?type=expense" class="<?=($active??'')==='transaction_expense'?'active':''?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="M5 12h14"/><path d="M5 5h14"/><path d="M5 19h14"/></svg>
+      <span>Pembiayaan / Biaya</span>
+    </a>
 
-    <!-- 📊 RIWAYAT & MUTASI (4 menu — HAPUS DUPLIKAT Catatan Keuangan) -->
-    <button class="nav-label" type="button" aria-expanded="false">Riwayat &amp; Mutasi</button>
+    <!-- 📊 RIWAYAT OPERASIONAL -->
+    <button class="nav-label" type="button" aria-expanded="false">Riwayat</button>
     <a href="<?=$_rp?>modules/deposit_history.php" class="<?=($active??'')==='deposit_history'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span>Riwayat Setoran</span>
@@ -285,27 +344,8 @@ h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-heig
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 7h8M8 12h8M8 17h5"/></svg>
       <span>Riwayat Penjualan</span>
     </a>
-    <a href="<?=$_rp?>modules/customer_mutation.php" class="<?=($active??'')==='customer_mutation'?'active':''?>">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M3 12h4M17 12h4"/></svg>
-      <span>Mutasi Nasabah</span>
-    </a>
 
-    <!-- 👛 AKSES CEPAT DOMPET (dinamis 3) -->
-    <button class="nav-label" type="button" aria-expanded="false">Akses Cepat Dompet</button>
-    <?php
-      $navWallets = db()->prepare("SELECT id,name FROM wallets WHERE company_id=? ORDER BY id LIMIT 3");
-      $navWallets->execute([current_company_id()]);
-      $navWalletActiveId = isset($_GET['id']) && basename($_SERVER['PHP_SELF'])==='wallet_detail.php' ? (int)$_GET['id'] : 0;
-      $navWalletCount = 0;
-      foreach ($navWallets->fetchAll() as $nw): $navWalletCount++;
-    ?>
-      <a href="<?=$_rp?>modules/wallet_detail.php?id=<?= (int)$nw['id'] ?>" class="wallet-link <?= $navWalletActiveId===(int)$nw['id']?'active':'' ?>">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20M16 15h.01"/></svg>
-        <span><?= e($nw['name']) ?></span>
-      </a>
-    <?php endforeach; ?>
-
-    <!-- 📈 LAPORAN (6 menu — reports.php diganti report_cashflow.php (lebih lengkap: setoran+penarikan+penjualan+transaksi) -->
+    <!-- 📈 LAPORAN INTI -->
     <button class="nav-label" type="button" aria-expanded="false">Laporan</button>
     <a href="<?=$_rp?>modules/report_cashflow.php" class="<?=($active??'')==='reports'||($active??'')==='report_cashflow'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-6"/></svg>
@@ -313,23 +353,27 @@ h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-heig
     </a>
     <a href="<?=$_rp?>modules/report_customers.php" class="<?=($active??'')==='report_customers'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
-      <span>Laporan Nasabah</span>
+      <span>Nasabah</span>
     </a>
     <a href="<?=$_rp?>modules/report_deposits.php" class="<?=($active??'')==='report_deposits'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="9" width="3" height="9"/></svg>
-      <span>Laporan Setoran</span>
+      <span>Setoran</span>
     </a>
     <a href="<?=$_rp?>modules/report_sales.php" class="<?=($active??'')==='report_sales'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>
-      <span>Laporan Penjualan</span>
+      <span>Penjualan</span>
     </a>
     <a href="<?=$_rp?>modules/report_wallet.php" class="<?=($active??'')==='report_wallet'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><rect x="3" y="3" width="18" height="18" rx="2" fill="none"/></svg>
-      <span>Laporan Dompet</span>
+      <span>Dompet</span>
     </a>
     <a href="<?=$_rp?>modules/report_stock.php" class="<?=($active??'')==='report_stock'?'active':''?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></svg>
-      <span>Laporan Stok</span>
+      <span>Stok</span>
+    </a>
+    <a href="<?=$_rp?>modules/report_daily.php" class="<?=($active??'')==='report_daily'?'active':''?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 14h3M8 18h6"/></svg>
+      <span>Laporan Harian</span>
     </a>
 
     <!-- ⚙ PENGATURAN SISTEM (4 menu — tanpa Perusahaan & Hak Akses) -->
@@ -370,9 +414,13 @@ h1{font-size:26px;font-weight:800;margin:0 0 8px;letter-spacing:-.55px;line-heig
 </aside>
 <main class="main">
 <header class="topbar">
-  <button class="menu-toggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="app-sidebar">
+  <button class="menu-toggle" type="button" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="app-sidebar" id="menu-toggle">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
   </button>
+  <div class="topbar-title">
+    <span class="muted">Dashboard</span>
+    <b><?=e($title ?? 'Dashboard')?></b>
+  </div>
   <div class="topbar-actions">
     <?php if($isLivePage): ?><span class="live-status" title="Data diperbarui otomatis"><i></i>Live</span><?php endif; ?>
     <span class="date-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><?=date('d M Y')?></span>

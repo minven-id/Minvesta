@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__.'/../config/config.php';
+ensure_sales_columns();
 $pdo=db(); $cid=current_company_id();
 ensure_transaction_documentation_columns();
 $contacts=$pdo->prepare("SELECT id,name FROM contacts WHERE company_id=? ORDER BY name");$contacts->execute([$cid]);$contacts=$contacts->fetchAll();
 $wallets=$pdo->prepare("SELECT id,name,balance FROM wallets WHERE company_id=? ORDER BY name");$wallets->execute([$cid]);$wallets=$wallets->fetchAll();
 $wastes=$pdo->prepare("SELECT * FROM waste_types WHERE company_id=? AND status=1 ORDER BY name");$wastes->execute([$cid]);$wastes=$wastes->fetchAll();
+$recent=$pdo->prepare("SELECT s.sale_date,s.invoice_no,ct.name contact,w.name wallet,s.total_weight,s.total_amount,s.status FROM sales s LEFT JOIN contacts ct ON ct.id=s.contact_id LEFT JOIN wallets w ON w.id=s.wallet_id WHERE s.company_id=? ORDER BY s.id DESC LIMIT 10");$recent->execute([$cid]);$recentSales=$recent->fetchAll();
 if($_SERVER['REQUEST_METHOD']==='POST'){csrf_check();$pdo->beginTransaction();try{
 $inv='INV-'.date('YmdHis').'-'.random_int(100,999);
 $weights=$_POST['weight']??[];$ids=$_POST['waste_type_id']??[];$totalW=0;$total=0;$details=[];
@@ -33,9 +35,9 @@ $pdo->commit();flash('success',"Penjualan tersimpan. Invoice: $inv, nilai: ".rup
 $active='sales';$title='Penjualan Sampah';require __DIR__.'/../includes/header.php';?>
 <div class="section-head">
   <div><h1>Penjualan Sampah ke Pengepul</h1><p class="muted">Catat penjualan sampah ke pengepul, otomatis kurangi stok dan tambahkan kas (jika lunas).</p></div>
-  <a class="btn ghost sm" href="../index.php">← Kembali</a>
+  <div style="display:flex;gap:8px;align-items:center"><button class="btn sm" type="button" data-modal-target="sales-form">+ Input Penjualan</button><a class="btn ghost sm" href="../index.php">← Kembali</a></div>
 </div>
-<div class="card form"><form method="post" enctype="multipart/form-data"><input type="hidden" name="csrf" value="<?=csrf_token()?>">
+<dialog class="app-form-modal" id="sales-form"><div class="modal-shell"><div class="modal-form-heading"><div><span class="eyebrow">Input transaksi</span><h2>Form Penjualan Sampah</h2></div><button class="modal-close" type="button" data-modal-close aria-label="Tutup dialog">&times;</button></div><form method="post" enctype="multipart/form-data"><input type="hidden" name="csrf" value="<?=csrf_token()?>">
 <div class="form-grid">
   <div class="field"><label>Pembeli (Kontak)</label>
     <select name="contact_id"><option value="">-- Pilih / Belum ada --</option>
@@ -50,7 +52,7 @@ $active='sales';$title='Penjualan Sampah';require __DIR__.'/../includes/header.p
     <select name="status"><option value="paid">Lunas (Langsung Masuk Kas)</option><option value="pending">Hutang / Belum Bayar</option></select>
   </div>
 </div>
-<div class="section"><h2>Detail Barang (Sampah yang Dijual)</h2>
+<div class="section"><div class="section-head"><h2>Detail barang (sampah yang dijual)</h2></div>
 <div id="rows"><?php for($i=0;$i<4;$i++):?>
   <div class="form-grid row" style="margin-bottom:8px">
     <div class="field"><select name="waste_type_id[]"><option value="">-- Pilih jenis --</option>
@@ -60,6 +62,8 @@ $active='sales';$title='Penjualan Sampah';require __DIR__.'/../includes/header.p
   </div>
 <?php endfor;?></div></div>
 <div class="form-grid transaction-documentation"><div class="field"><label>Catatan</label><textarea name="notes" placeholder="Nomor polisi, sopir, dll."></textarea></div><div class="field"><label>Dokumentasi Transaksi</label><input type="file" name="documentation" accept="image/jpeg,image/png,image/webp,application/pdf"><small class="field-help">Foto bukti serah terima atau dokumen pendukung. Maksimal 5 MB.</small></div></div>
-<div class="actions"><button class="btn">Simpan Penjualan</button><a class="btn ghost" href="sales_history.php">Riwayat Penjualan</a></div>
+<div class="actions"><button class="btn">Simpan Penjualan</button><button class="btn ghost" type="button" data-modal-close>Batal</button></div>
 </form></div>
+</dialog>
+<div class="section table-wrap"><div class="section-head"><h2>Data penjualan terbaru</h2><a class="btn ghost sm" href="sales_history.php">Lihat Semua</a></div><table class="table"><tr><th>Tanggal</th><th>No. Invoice</th><th>Pembeli</th><th>Kas/Rekening</th><th class="right">Berat</th><th class="right">Nilai</th><th>Status</th></tr><?php foreach($recentSales as $row):?><tr><td><?=e($row['sale_date'])?></td><td><b><?=e($row['invoice_no'])?></b></td><td><?=e($row['contact']??'-')?></td><td><?=e($row['wallet'])?></td><td class="right"><?=number_format((float)$row['total_weight'],2,',','.')?> kg</td><td class="right income"><?=rupiah((float)$row['total_amount'])?></td><td><span class="badge <?=($row['status']==='paid'?'success':'warning')?>"><?=e($row['status'])?></span></td></tr><?php endforeach;?><?php if(!$recentSales):?><tr><td colspan="7" class="empty">Belum ada data penjualan.</td></tr><?php endif;?></table></div>
 <?php require __DIR__.'/../includes/footer.php';?>

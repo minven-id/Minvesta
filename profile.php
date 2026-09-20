@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/config/config.php';
 require_login();
+ensure_email_column();
 ensure_profile_columns();
 
 $pdo = db();
@@ -11,17 +12,14 @@ $uploadUrl = 'assets/uploads/profiles/';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $name = trim($_POST['name'] ?? '');
-    $username = trim($_POST['username'] ?? '');
+    $email = strtolower(trim($_POST['email'] ?? ''));
     $phone = trim($_POST['phone'] ?? '');
     $newPassword = $_POST['new_password'] ?? '';
     $photoPath = null;
     $oldPhoto = '';
 
     try {
-        if ($name === '' || $username === '') throw new Exception('Nama dan username wajib diisi.');
-        if (!preg_match('/^[A-Za-z0-9._-]{3,80}$/', $username)) {
-            throw new Exception('Username hanya boleh berisi huruf, angka, titik, garis bawah, atau tanda hubung.');
-        }
+        if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) throw new Exception('Nama dan email yang valid wajib diisi.');
         if ($newPassword !== '' && strlen($newPassword) < 8) {
             throw new Exception('Password baru minimal 8 karakter.');
         }
@@ -32,9 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$currentUser) throw new Exception('Data user tidak ditemukan.');
         $oldPhoto = (string)($currentUser['profile_photo'] ?? '');
 
-        $duplicate = $pdo->prepare('SELECT COUNT(*) FROM users WHERE company_id=? AND username=? AND id<>?');
-        $duplicate->execute([current_company_id(), $username, $userId]);
-        if ((int)$duplicate->fetchColumn() > 0) throw new Exception('Username sudah digunakan user lain.');
+        $duplicate = $pdo->prepare('SELECT COUNT(*) FROM users WHERE company_id=? AND email=? AND id<>?');
+        $duplicate->execute([current_company_id(), $email, $userId]);
+        if ((int)$duplicate->fetchColumn() > 0) throw new Exception('Email sudah digunakan user lain.');
 
         if (!empty($_FILES['profile_photo']['name'])) {
             if ($_FILES['profile_photo']['error'] !== UPLOAD_ERR_OK) throw new Exception('Foto profil gagal diunggah.');
@@ -52,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $photoPath = $uploadUrl.$filename;
         }
 
-        $updates = ['name=?', 'username=?', 'phone=?'];
-        $args = [$name, $username, $phone];
+        $updates = ['name=?', 'email=?', 'phone=?'];
+        $args = [$name, $email, $phone];
         if ($newPassword !== '') {
             $updates[] = 'password=?';
             $args[] = password_hash($newPassword, PASSWORD_DEFAULT);
@@ -67,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $pdo->prepare('UPDATE users SET '.implode(', ', $updates).' WHERE id=? AND company_id=?');
         $statement->execute($args);
         $_SESSION['auth_user_name'] = $name;
-        $_SESSION['auth_username'] = $username;
+        $_SESSION['auth_username'] = $email;
         if ($photoPath !== null && $oldPhoto !== '' && str_starts_with($oldPhoto, $uploadUrl)) {
             $oldFile = __DIR__.'/'.$oldPhoto;
             if (is_file($oldFile)) @unlink($oldFile);
@@ -79,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('profile.php');
 }
 
-$query = $pdo->prepare('SELECT id,name,username,phone,profile_photo,role,created_at FROM users WHERE id=? AND company_id=?');
+$query = $pdo->prepare('SELECT id,name,email,username,phone,profile_photo,role,created_at FROM users WHERE id=? AND company_id=?');
 $query->execute([$userId, current_company_id()]);
 $user = $query->fetch();
 if (!$user) redirect('logout.php');
@@ -101,18 +99,18 @@ $initial = strtoupper(substr($user['name'], 0, 1));
       <?php if ($profileImage): ?><img class="profile-avatar" src="<?=e($profileImage)?>" alt="Foto profil <?=e($user['name'])?>"><?php else: ?><span class="profile-avatar profile-avatar-fallback"><?=e($initial)?></span><?php endif; ?>
     </div>
     <h2><?=e($user['name'])?></h2>
-    <p>@<?=e($user['username'])?></p>
+    <p><?=e($user['email'])?></p>
     <span class="badge success"><?=e(ucfirst($user['role']))?></span>
-    <div class="profile-summary-note">Akun aktif untuk mengelola operasional Bank Sampah.</div>
+    <div class="profile-summary-note">Akun aktif untuk mengelola operasional Minvesta.</div>
   </aside>
 
   <section class="profile-card card">
-    <div class="profile-card-heading"><span class="eyebrow">Informasi akun</span><h2>Identitas &amp; akses login</h2><p>Perubahan username dan password akan langsung digunakan saat login berikutnya.</p></div>
+    <div class="profile-card-heading"><span class="eyebrow">Informasi akun</span><h2>Identitas &amp; akses login</h2><p>Perubahan email dan password akan langsung digunakan saat login berikutnya.</p></div>
     <form method="post" enctype="multipart/form-data">
       <input type="hidden" name="csrf" value="<?=csrf_token()?>">
       <div class="form-grid">
         <div class="field"><label for="profile-name">Nama lengkap</label><input id="profile-name" name="name" value="<?=e($user['name'])?>" required autocomplete="name"></div>
-        <div class="field"><label for="profile-username">Username</label><input id="profile-username" name="username" value="<?=e($user['username'])?>" required autocomplete="username"></div>
+        <div class="field"><label for="profile-email">Email</label><input id="profile-email" type="email" name="email" value="<?=e($user['email'] ?? '')?>" required autocomplete="email"></div>
         <div class="field"><label for="profile-phone">Nomor telepon</label><input id="profile-phone" name="phone" value="<?=e($user['phone'] ?? '')?>" placeholder="Contoh: 0812-3456-7890" autocomplete="tel"></div>
         <div class="field"><label for="profile-password">Password baru</label><input id="profile-password" type="password" name="new_password" placeholder="Kosongkan jika tidak diubah" minlength="8" autocomplete="new-password"><small class="field-help">Minimal 8 karakter.</small></div>
         <div class="field full"><label for="profile-photo">Foto profil</label><input id="profile-photo" type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp" data-photo-input><small class="field-help">JPG, PNG, atau WEBP. Maksimal 2 MB.</small></div>

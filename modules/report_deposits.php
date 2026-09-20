@@ -10,9 +10,9 @@ $perNasabah->execute([$cid,$from,$to,$cid]); $nasabahRows=$perNasabah->fetchAll(
 $perTanggal=$pdo->prepare("SELECT deposit_date tgl,COALESCE(SUM(total_weight),0) w,COALESCE(SUM(total_amount),0) a,COUNT(*) c FROM deposits WHERE $where GROUP BY deposit_date ORDER BY deposit_date DESC");
 $perTanggal->execute($args); $tglRows=$perTanggal->fetchAll();
 $active='report_deposits';$title='Laporan Setoran';require __DIR__.'/../includes/header.php';?>
-<div class="section-head"><div><h1>Laporan Setoran</h1><p class="muted">Rekap berat, nilai, dan frekuensi setoran per periode.</p></div><div><a class="btn ghost sm" href="../index.php">← Kembali</a></div></div>
+<div class="section-head"><div><h1>Laporan Setoran</h1><p class="muted">Rekap berat, nilai, dan frekuensi setoran per periode.</p></div><div><div style="display:flex;gap:8px"><button class="btn ghost sm" onclick="exportToExcel('deposits-nasabah-table', 'laporan-setoran-nasabah-<?=date('Y-m-d')?>')">📊 Excel Nasabah</button><button class="btn ghost sm" onclick="exportToPDF('deposits-nasabah-table', 'laporan-setoran-nasabah-<?=date('Y-m-d')?>', 'Laporan Setoran per Nasabah')">📄 PDF Nasabah</button><button class="btn ghost sm" onclick="exportToExcel('deposits-tanggal-table', 'laporan-setoran-tanggal-<?=date('Y-m-d')?>')">📊 Excel Tanggal</button><button class="btn ghost sm" onclick="exportToPDF('deposits-tanggal-table', 'laporan-setoran-tanggal-<?=date('Y-m-d')?>', 'Laporan Setoran per Tanggal')">📄 PDF Tanggal</button><button class="btn ghost sm" onclick="printReport()">🖨️ Print</button><a class="btn ghost sm" href="../index.php">← Kembali</a></div></div></div>
 <div class="card">
-  <form class="toolbar" method="get">
+  <form class="report-filter" method="get">
     <label class="muted">Dari <input type="date" name="from" value="<?=e($from)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <label class="muted">Sampai <input type="date" name="to" value="<?=e($to)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <button class="btn sm">Tampilkan</button>
@@ -26,7 +26,7 @@ $active='report_deposits';$title='Laporan Setoran';require __DIR__.'/../includes
   <div class="card stat"><div class="label">Rata-Rata/Transaksi</div><div class="value"><?=($tot['c']>0)?rupiah((float)$tot['a']/$tot['c']):'-'?></div></div>
 </div>
 <div class="section"><div class="section-head"><h2>Rekap per Nasabah (Top 15)</h2></div>
-<div class="table-wrap"><table class="table">
+<div class="table-wrap"><table class="table" id="deposits-nasabah-table">
   <tr><th>No. Nasabah</th><th>Nama</th><th class="right">Setoran (x)</th><th class="right">Berat (kg)</th><th class="right">Total Nilai</th><th class="right">Rata-Rata</th></tr>
   <?php foreach($nasabahRows as $i=>$r):?>
     <tr>
@@ -41,7 +41,7 @@ $active='report_deposits';$title='Laporan Setoran';require __DIR__.'/../includes
   <?php if(!$nasabahRows):?><tr><td colspan="6" class="empty">Belum ada data.</td></tr><?php endif;?>
 </table></div></div>
 <div class="section"><div class="section-head"><h2>Rekap per Tanggal</h2></div>
-<div class="table-wrap"><table class="table">
+<div class="table-wrap"><table class="table" id="deposits-tanggal-table">
   <tr><th>Tanggal</th><th class="right">Jumlah</th><th class="right">Berat (kg)</th><th class="right">Nilai (Rp)</th></tr>
   <?php foreach($tglRows as $r):?>
     <tr>

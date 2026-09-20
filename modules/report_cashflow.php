@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../config/config.php';
+ensure_sales_columns();
 $pdo=db(); $cid=current_company_id();
 $from=$_GET['from']??date('Y-m-01'); $to=$_GET['to']??date('Y-m-d');
 $whereDate="BETWEEN ? AND ?"; $args=[$from,$to];
@@ -28,9 +29,9 @@ $totalIn=0; $totalOut=0; $running=$pdo->prepare("SELECT COALESCE(SUM(balance),0)
 $running->execute([$cid]); $saldoAwal=(float)$running->fetchColumn();
 foreach($cashflow as $c){$totalIn+=$c['in']; $totalOut+=$c['out'];}
 $active='report_cashflow';$title='Laporan Arus Kas';require __DIR__.'/../includes/header.php';?>
-<div class="section-head"><div><h1>Laporan Arus Kas</h1><p class="muted">Rekap kas masuk, kas keluar, dan ringkasan keuangan Bank Sampah.</p></div><div><a class="btn ghost sm" href="../index.php">← Kembali</a></div></div>
+  <div class="section-head"><div><h1>Laporan Arus Kas</h1><p class="muted">Rekap kas masuk, kas keluar, dan ringkasan keuangan Minvesta.</p></div><div><div style="display:flex;gap:8px"><button class="btn ghost sm" onclick="exportToExcel('cashflow-table', 'laporan-arus-kas-<?=date('Y-m-d')?>')">📊 Excel</button><button class="btn ghost sm" onclick="exportToPDF('cashflow-table', 'laporan-arus-kas-<?=date('Y-m-d')?>', 'Laporan Arus Kas')">📄 PDF</button><button class="btn ghost sm" onclick="printReport()">🖨️ Print</button><a class="btn ghost sm" href="../index.php">← Kembali</a></div></div></div>
 <div class="card">
-  <form class="toolbar" method="get">
+  <form class="report-filter" method="get">
     <label class="muted">Dari <input type="date" name="from" value="<?=e($from)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <label class="muted">Sampai <input type="date" name="to" value="<?=e($to)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <button class="btn sm">Tampilkan</button>
@@ -43,7 +44,7 @@ $active='report_cashflow';$title='Laporan Arus Kas';require __DIR__.'/../include
   <div class="card stat income-card"><div class="label">Surplus/Defisit</div><div class="value <?=($totalIn-$totalOut>=0?'income':'expense')?>"><?=rupiah($totalIn-$totalOut)?></div></div>
   <div class="card stat"><div class="label">Saldo Dompet Saat Ini</div><div class="value"><?=rupiah($saldoAwal)?></div></div>
 </div>
-<div class="section table-wrap"><table class="table">
+<div class="section table-wrap"><table class="table" id="cashflow-table">
   <tr><th>Tanggal</th><th>No. Referensi</th><th>Jenis</th><th>Keterangan</th><th class="right">Kas Masuk</th><th class="right">Kas Keluar</th></tr>
   <?php foreach($cashflow as $r):?>
     <tr>

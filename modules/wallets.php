@@ -91,7 +91,10 @@ require __DIR__.'/../includes/header.php';
 </div>
 
 <div class="section card wallet-form wallet-create" id="tambah">
-<h2>Tambah Dompet Custom</h2>
+<div class="form-header">
+  <h2>Tambah Dompet Custom</h2>
+  <span class="badge sage">Rekening baru</span>
+</div>
 <form method="post">
 <input type="hidden" name="csrf" value="<?=csrf_token()?>">
 <input type="hidden" name="action" value="add">

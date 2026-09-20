@@ -44,7 +44,10 @@ $active='categories';$title='Kategori';require __DIR__.'/../includes/header.php'
 </div>
 
 <div class="card form" id="tambah">
-  <h2 style="margin:0 0 14px"><?=$editRow?'Edit Kategori':'Tambah Kategori Baru'?></h2>
+  <div class="form-header">
+    <h2><?=$editRow?'Edit Kategori':'Tambah Kategori Baru'?></h2>
+    <?php if($editRow):?><span class="badge sage">Mode edit</span><?php endif;?>
+  </div>
   <form method="post">
   <input type="hidden" name="csrf" value="<?=csrf_token()?>">
   <input type="hidden" name="action" value="<?=$editRow?'edit':'add'?>">

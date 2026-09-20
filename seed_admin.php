@@ -4,7 +4,7 @@ require_once __DIR__.'/config/config.php';
 $password = 'password';
 $hash = password_hash($password, PASSWORD_DEFAULT);
 
-$companyName = 'Bank Sampah Utama';
+$companyName = 'Minvesta Utama';
 $companyCode = 'BSU';
 
 $db = db();
@@ -21,10 +21,10 @@ try {
     }
 
     $db->prepare("DELETE FROM users WHERE username='admin'")->execute();
-    $db->prepare("INSERT INTO users(company_id,name,username,password,role) VALUES(1,?,?,?,?)")
-       ->execute(['Administrator','admin',$hash,'admin']);
+     $db->prepare("INSERT INTO users(company_id,name,email,username,password,role) VALUES(1,?,?,?,?,?)")
+         ->execute(['Administrator','admin@minvesta.local','admin',$hash,'admin']);
     echo "✔ User admin dibuat/direset<br>";
-    echo "➡ Username: <b>admin</b><br>";
+    echo "➡ Email: <b>admin@minvesta.local</b><br>";
     echo "➡ Password: <b>password</b><br>";
 
     $db->commit();

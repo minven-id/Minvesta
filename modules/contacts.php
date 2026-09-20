@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../config/config.php';
+ensure_sales_columns();
 $pdo=db(); $cid=current_company_id();
 
 if($_SERVER['REQUEST_METHOD']==='POST'){
@@ -44,7 +45,10 @@ $active='contacts';$title='Kontak';require __DIR__.'/../includes/header.php';?>
 </div>
 
 <div class="card form" id="tambah">
-  <h2 style="margin:0 0 14px"><?=$editRow?'Edit Kontak':'Tambah Kontak Baru'?></h2>
+  <div class="form-header">
+    <h2><?=$editRow?'Edit Kontak':'Tambah Kontak Baru'?></h2>
+    <?php if($editRow):?><span class="badge sage">Mode edit</span><?php endif;?>
+  </div>
   <form method="post">
   <input type="hidden" name="csrf" value="<?=csrf_token()?>">
   <input type="hidden" name="action" value="<?=$editRow?'edit':'add'?>">
@@ -79,7 +83,7 @@ $active='contacts';$title='Kontak';require __DIR__.'/../includes/header.php';?>
         <td><?=e($r['phone'])?></td>
         <td><?=e($r['email'])?></td>
         <td class="right">
-          <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+          <div class="table-actions">
             <a class="btn ghost sm" href="?edit=<?=(int)$r['id']?>">Edit</a>
             <form method="post" style="display:inline" onsubmit="return confirm('Hapus kontak <?=e($r['name'])?>?')">
               <input type="hidden" name="csrf" value="<?=csrf_token()?>">

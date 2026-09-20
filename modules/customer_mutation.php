@@ -37,7 +37,7 @@ $active='customer_mutation';$title='Mutasi Nasabah';require __DIR__.'/../include
   <div class="card stat expense-card"><div class="label">Total Debit (Penarikan)</div><div class="value expense"><?=rupiah($totalOut)?></div></div>
   <div class="card stat income-card"><div class="label">Saldo Akhir</div><div class="value"><?=rupiah((float)$cust['balance'])?></div></div>
 </div>
-<div class="section table-wrap"><table class="table">
+<div class="section table-wrap"><div class="section-head"><h2>Riwayat mutasi</h2></div><table class="table">
   <tr><th>Tanggal</th><th>No. Referensi</th><th>Keterangan</th><th>Jenis</th><th class="right">Kredit</th><th class="right">Debit</th></tr>
   <?php foreach($mutations as $m):?>
     <tr>

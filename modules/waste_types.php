@@ -46,7 +46,10 @@ $active='waste_types';$title='Jenis Sampah';require __DIR__.'/../includes/header
 </div>
 
 <div class="card form" id="tambah">
-  <h2 style="margin:0 0 14px"><?=$editRow?'Edit Jenis Sampah':'Tambah Jenis Sampah Baru'?></h2>
+  <div class="form-header">
+    <h2><?=$editRow?'Edit Jenis Sampah':'Tambah Jenis Sampah Baru'?></h2>
+    <?php if($editRow):?><span class="badge sage">Mode edit</span><?php endif;?>
+  </div>
   <form method="post">
   <input type="hidden" name="csrf" value="<?=csrf_token()?>">
   <input type="hidden" name="action" value="<?=$editRow?'edit':'add'?>">
@@ -82,7 +85,7 @@ $active='waste_types';$title='Jenis Sampah';require __DIR__.'/../includes/header
         <td class="right"><?=rupiah((float)$r['sell_price'])?></td>
         <td class="right"><?=number_format((float)$r['stock_kg'],2,',','.')?></td>
         <td class="right">
-          <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+          <div class="table-actions">
             <a class="btn ghost sm" href="?edit=<?=(int)$r['id']?>">Edit</a>
             <form method="post" style="display:inline" onsubmit="return confirm('Hapus jenis sampah <?=e($r['name'])?>?')">
               <input type="hidden" name="csrf" value="<?=csrf_token()?>">

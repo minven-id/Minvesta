@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Sep 08, 2026 at 04:26 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.1.25
+-- Host: localhost:3306
+-- Generation Time: Sep 21, 2026 at 12:51 AM
+-- Server version: 10.11.19-MariaDB-cll-lve-log
+-- PHP Version: 8.4.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `banksampah_app`
+-- Database: `minvenmy_minvesta`
 --
 
 -- --------------------------------------------------------
@@ -71,31 +71,6 @@ CREATE TABLE `categories` (
   `type` enum('income','expense') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `categories`
---
-
-INSERT INTO `categories` (`id`, `company_id`, `name`, `type`) VALUES
-(1, 1, 'Penjualan Sampah', 'income'),
-(2, 1, 'Donasi', 'income'),
-(3, 1, 'Operasional', 'expense'),
-(4, 1, 'Transportasi', 'expense'),
-(5, 1, 'Pembelian Peralatan', 'expense'),
-(6, 2, 'Penjualan Sampah', 'income'),
-(7, 2, 'Operasional', 'expense'),
-(8, 1, 'Penjualan Sampah', 'income'),
-(9, 1, 'Setoran Nasabah', 'income'),
-(10, 1, 'Donasi / Hibah', 'income'),
-(11, 1, 'Bunga Simpanan', 'income'),
-(12, 1, 'Pendapatan Lainnya', 'income'),
-(13, 1, 'Penarikan Nasabah', 'expense'),
-(14, 1, 'Operasional Kantor', 'expense'),
-(15, 1, 'Transportasi / Angkut', 'expense'),
-(16, 1, 'Pembelian Peralatan', 'expense'),
-(17, 1, 'Gaji Karyawan', 'expense'),
-(18, 1, 'Listrik / Internet', 'expense'),
-(19, 1, 'Biaya Lainnya', 'expense');
-
 -- --------------------------------------------------------
 
 --
@@ -137,8 +112,7 @@ CREATE TABLE `contacts` (
 --
 
 INSERT INTO `contacts` (`id`, `company_id`, `name`, `type`, `phone`, `email`) VALUES
-(1, 1, 'Pengepul Pak Joko', 'supplier', '0813-1111-2222', 'joko@pengepul.co.id'),
-(3, 1, 'CV. Daur Ulang Sejahtera', 'customer', '021-5555-6666', 'info@daurulang.com');
+(4, 1, 'erik', 'Pengepul', '089763657281', '-');
 
 -- --------------------------------------------------------
 
@@ -164,11 +138,21 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`id`, `company_id`, `customer_no`, `name`, `phone`, `address`, `join_date`, `status`, `balance`, `created_at`) VALUES
-(1, 1, 'NSB-0001', 'Nasabah Umum', '0800000000', '-', '2026-09-01', 'active', 0.00, '2026-09-04 18:42:41'),
-(2, 1, 'NSB-0002', 'Budi Santoso', '0812-1234-5678', 'Jl. Gajah Mada No. 15', '2026-02-10', 'active', 0.00, '2026-09-05 03:24:46'),
-(3, 1, 'NSB-0003', 'Siti Rahayu', '0813-8765-4321', 'Jl. Sudirman No. 22', '2026-03-05', 'active', 0.00, '2026-09-05 03:24:46'),
-(4, 1, 'NSB-0004', 'Ahmad Yani', '0821-5555-1234', 'Jl. Diponegoro No. 8', '2026-04-12', 'active', 0.00, '2026-09-05 03:24:46'),
-(5, 1, 'NSB-0005', 'Dewi Lestari', '0856-2222-9876', 'Jl. Sultan Agung No. 33', '2026-05-20', 'inactive', 0.00, '2026-09-05 03:24:46');
+(6, 1, 'KC-09NSB-01', 'Asep Kusnandar', '+6287834803900', 'jln Sindang Sari 3 RT 4 RW 09', '2026-09-18', 'active', 5000.00, '2026-09-18 06:51:26'),
+(7, 1, 'KC09-NSB-02', 'ida Farida', '083133515309', 'Jln Sindang sari 3 RT 4 RW 09', '2026-09-18', 'active', 1000.00, '2026-09-18 06:57:40'),
+(8, 1, 'KC09-NSB-03', 'bapa Ujang', '083821379762', 'jln Sindang Sari 3 RT 4 RW 09', '2026-09-18', 'active', 2000.00, '2026-09-18 07:01:14'),
+(9, 1, 'KC09-NSB-04', 'Agus', '083832310722', 'Jln Sindang Sari 3 RT 4 RW 09', '2026-09-18', 'active', 5000.00, '2026-09-18 07:03:33'),
+(10, 1, 'KC09-NSB-05', 'yanto suharto', '083131060342', 'Jln Sindang Sari 3 RT 4 RW 09', '2026-09-18', 'blacklist', 0.00, '2026-09-18 07:06:19'),
+(11, 1, 'KC09-NSB-06', 'Jajang', '+6287797029971', 'jln Sindang sari', '2026-09-19', 'active', 0.00, '2026-09-19 04:59:02'),
+(12, 1, 'KC09-NSB-07', 'usep', '+6287897023971', 'jln Sindang sari', '2026-09-19', 'active', 2000.00, '2026-09-19 05:00:30'),
+(13, 1, 'KC09-NSB-08', 'Pa Agung', '+6287834803999', 'jln Sindang sari 3', '2026-09-19', 'active', 0.00, '2026-09-19 05:02:05'),
+(14, 1, 'KC09-NSB-09', 'usep', '+62878556739', 'jln Sindang sari 3', '2026-09-19', 'active', 0.00, '2026-09-19 05:03:27'),
+(15, 1, 'KC09-NSB-10', 'uu', '+6287797329977', 'jln Sindang sari 3', '2026-09-19', 'active', 0.00, '2026-09-19 05:05:25'),
+(16, 1, 'KC09-NSB-11', 'Wiliam', '+6281325490408', 'jln Sindang Sari3', '2026-09-19', 'active', 0.00, '2026-09-19 05:08:18'),
+(17, 1, 'KC09-NSB-12', 'isep', '+6287863598288', 'jln sindang sari 3', '2026-09-19', 'active', 5000.00, '2026-09-19 05:10:26'),
+(18, 1, 'KC09-NSB-13', 'dian', '+6289519462358', 'jln Sindang sari', '2026-09-19', 'active', 7000.00, '2026-09-19 05:11:48'),
+(19, 1, 'KC09-NSB-14', 'pa Padil', '+6288808993278', 'jln Sindang sari 3', '2026-09-19', 'active', 0.00, '2026-09-19 05:13:46'),
+(20, 1, 'KC09-NSB-15', 'kurwin', '+6285650229309', 'jln Sindang sari', '2026-09-19', 'active', 5000.00, '2026-09-19 05:15:35');
 
 -- --------------------------------------------------------
 
@@ -208,6 +192,20 @@ CREATE TABLE `deposits` (
   `documentation` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `deposits`
+--
+
+INSERT INTO `deposits` (`id`, `company_id`, `customer_id`, `receipt_no`, `deposit_date`, `total_weight`, `total_amount`, `status`, `notes`, `documentation`) VALUES
+(1, 1, 6, 'SET-20260920112907-688', '2026-09-20', 1.000, 5000.00, 'posted', '-', 'assets/uploads/transactions/deposit_20260920112907_29ac3d84a2.jpg'),
+(2, 1, 12, 'SET-20260920113330-501', '2026-09-20', 1.000, 2000.00, 'posted', '-', 'assets/uploads/transactions/deposit_20260920113330_26350943d2.jpg'),
+(3, 1, 7, 'SET-20260920113708-188', '2026-09-20', 1.000, 1000.00, 'posted', '', 'assets/uploads/transactions/deposit_20260920113708_4ee0d90c06.jpg'),
+(4, 1, 9, 'SET-20260920113827-116', '2026-09-20', 1.000, 5000.00, 'posted', '-', 'assets/uploads/transactions/deposit_20260920113827_f33f84f4e0.jpg'),
+(5, 1, 18, 'SET-20260920114258-853', '2026-09-20', 1.000, 7000.00, 'posted', '-', 'assets/uploads/transactions/deposit_20260920114258_55660012be.jpg'),
+(6, 1, 8, 'SET-20260920115238-116', '2026-09-20', 1.000, 2000.00, 'posted', '-', 'assets/uploads/transactions/deposit_20260920115238_07b4f86539.jpg'),
+(7, 1, 20, 'SET-20260920115429-631', '2026-09-20', 1.000, 5000.00, 'posted', '', 'assets/uploads/transactions/deposit_20260920115429_e5ca4bee31.jpg'),
+(8, 1, 17, 'SET-20260920115509-360', '2026-09-20', 1.000, 5000.00, 'posted', '-', 'assets/uploads/transactions/deposit_20260920115509_89dba07123.jpg');
+
 -- --------------------------------------------------------
 
 --
@@ -222,6 +220,20 @@ CREATE TABLE `deposit_details` (
   `price_per_kg` decimal(18,2) NOT NULL,
   `subtotal` decimal(18,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `deposit_details`
+--
+
+INSERT INTO `deposit_details` (`id`, `deposit_id`, `waste_type_id`, `weight_kg`, `price_per_kg`, `subtotal`) VALUES
+(1, 1, 19, 1.000, 5000.00, 5000.00),
+(2, 2, 20, 1.000, 2000.00, 2000.00),
+(3, 3, 21, 1.000, 1000.00, 1000.00),
+(4, 4, 19, 1.000, 5000.00, 5000.00),
+(5, 5, 22, 1.000, 7000.00, 7000.00),
+(6, 6, 24, 1.000, 2000.00, 2000.00),
+(7, 7, 19, 1.000, 5000.00, 5000.00),
+(8, 8, 23, 1.000, 5000.00, 5000.00);
 
 -- --------------------------------------------------------
 
@@ -296,13 +308,6 @@ CREATE TABLE `transactions` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `transactions`
---
-
-INSERT INTO `transactions` (`id`, `company_id`, `wallet_id`, `category_id`, `type`, `amount`, `description`, `transaction_date`, `created_at`) VALUES
-(1, 1, 8, 11, 'income', 9000.00, '', '2026-09-05', '2026-09-05 07:05:08');
-
 -- --------------------------------------------------------
 
 --
@@ -318,13 +323,6 @@ CREATE TABLE `transfers` (
   `transfer_date` date NOT NULL,
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `transfers`
---
-
-INSERT INTO `transfers` (`id`, `company_id`, `from_wallet`, `to_wallet`, `amount`, `transfer_date`, `description`) VALUES
-(1, 1, 8, 9, 9000.00, '2026-09-05', '');
 
 -- --------------------------------------------------------
 
@@ -350,7 +348,10 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `company_id`, `name`, `username`, `phone`, `profile_photo`, `password`, `role`, `created_at`) VALUES
 (3, 1, 'Administrator', 'padil', '', 'assets/uploads/profiles/user_3_93dd8cb75543.png', '$2y$10$oXpOeS2Yh.nNC3JZVVZmUupsSYJ8haId..Jc.El8UDL4tsr3iiMAW', 'admin', '2026-09-08 09:06:40'),
-(4, 1, 'ucup', 'ucup', '089000877', 'assets/uploads/profiles/user_4_71ec68800425.png', '$2y$10$oMKZwNW7Cs5Q6T8eZaSMp.ZHeVnh0swdZDGJH53DoiXGwwvFWzF0O', 'staff', '2026-09-08 13:21:32');
+(5, 1, 'Minven.id', 'minven', '081322629661', NULL, '$2y$10$ejHGBcyHtpgp8jRw/AZi8O/I1TMzyPtkr71urmegw.6lsDv04S21S', 'admin', '2026-09-15 15:40:44'),
+(6, 1, 'syahrun', 'syahrun', '-', NULL, '$2y$10$bG5m37bMrhL4Ni8GLZKJSOiMjlu4zGXp.3yY.UKEaxOEid2mt1ewC', 'admin', '2026-09-15 15:42:08'),
+(7, 1, 'dzkrul', 'dzkrul', '-', NULL, '$2y$10$EPPmGXIHScjJSnVHaFZbueY3a66vQ2eBnxpkCeRbmca2/6.mmpGIG', 'admin', '2026-09-15 15:42:32'),
+(8, 1, 'Alka', 'alka', '+62 878-3480-3900', NULL, '$2y$10$kuFWvCJ9t/8vuibhC5MUoOAwtHh8h1pD9NP8YvcpFgXBxQHFLoFDi', 'staff', '2026-09-15 16:09:51');
 
 -- --------------------------------------------------------
 
@@ -371,11 +372,7 @@ CREATE TABLE `wallets` (
 --
 
 INSERT INTO `wallets` (`id`, `company_id`, `name`, `type`, `balance`) VALUES
-(1, 1, 'Kas Utama', 'Cash', 0.00),
-(4, 2, 'Kas Utama', 'Cash', 0.00),
-(5, 1, 'Kas Utama', 'Cash', 0.00),
-(8, 1, 'Bank BCA', 'Bank', 0.00),
-(9, 1, 'E-Wallet QRIS', 'E-Wallet', 9000.00);
+(10, 1, 'tarka', 'Cash', 0.00);
 
 -- --------------------------------------------------------
 
@@ -399,13 +396,12 @@ CREATE TABLE `waste_types` (
 --
 
 INSERT INTO `waste_types` (`id`, `company_id`, `name`, `unit`, `buy_price`, `sell_price`, `stock_kg`, `status`) VALUES
-(4, 1, 'Besi', 'kg', 4500.00, 6500.00, 0.000, 1),
-(6, 1, 'Kaleng', 'kg', 5000.00, 8000.00, 0.000, 1),
-(8, 1, 'Botol PET', 'kg', 4000.00, 6000.00, 0.000, 1),
-(9, 1, 'Kardus', 'kg', 2500.00, 4000.00, 0.000, 1),
-(11, 1, 'Besi Tua', 'kg', 4500.00, 6500.00, 0.000, 1),
-(12, 1, 'Aluminium', 'kg', 12000.00, 16000.00, 0.000, 1),
-(15, 1, 'Kaca Botol', 'kg', 1500.00, 2500.00, 0.000, 1);
+(19, 1, 'kardus', 'kg', 5000.00, 0.00, 3.000, 1),
+(20, 1, 'wadah telur', 'kg', 2000.00, 0.00, 1.000, 1),
+(21, 1, 'galon', 'kg', 1000.00, 0.00, 1.000, 1),
+(22, 1, 'magicom', 'kg', 7000.00, 0.00, 1.000, 1),
+(23, 1, 'ember', 'kg', 5000.00, 0.00, 1.000, 1),
+(24, 1, 'meja', 'kg', 2000.00, 0.00, 1.000, 1);
 
 -- --------------------------------------------------------
 
@@ -600,13 +596,13 @@ ALTER TABLE `companies`
 -- AUTO_INCREMENT for table `contacts`
 --
 ALTER TABLE `contacts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `customer_mutations`
@@ -618,13 +614,13 @@ ALTER TABLE `customer_mutations`
 -- AUTO_INCREMENT for table `deposits`
 --
 ALTER TABLE `deposits`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `deposit_details`
 --
 ALTER TABLE `deposit_details`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `sales`
@@ -660,19 +656,19 @@ ALTER TABLE `transfers`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `wallets`
 --
 ALTER TABLE `wallets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `waste_types`
 --
 ALTER TABLE `waste_types`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `withdrawals`

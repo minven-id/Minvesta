@@ -19,7 +19,7 @@ $active='deposit_history';$title='Riwayat Setoran';require __DIR__.'/../includes
   <div class="card stat"><div class="label">Jumlah Transaksi</div><div class="value"><?=number_format(count($rows))?></div></div>
 </div>
 <div class="section card">
-  <form class="toolbar" method="get">
+  <form class="report-filter" method="get">
     <label class="muted">Dari <input type="date" name="from" value="<?=e($from)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <label class="muted">Sampai <input type="date" name="to" value="<?=e($to)?>" style="padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px"></label>
     <button class="btn sm">Filter</button>

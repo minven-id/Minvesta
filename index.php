@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/config/config.php';
+ensure_sales_columns();
 $title='Dashboard'; $active='dashboard'; $pdo=db(); $cid=current_company_id();
 function scalar($sql,$args){$s=db()->prepare($sql);$s->execute($args);return $s->fetchColumn();}
 
@@ -8,13 +9,17 @@ $saldoKas=(float)scalar("SELECT COALESCE(SUM(balance),0) FROM wallets WHERE comp
 $setoranBulan=(float)scalar("SELECT COALESCE(SUM(total_amount),0) FROM deposits WHERE company_id=? AND MONTH(deposit_date)=MONTH(CURDATE()) AND YEAR(deposit_date)=YEAR(CURDATE())",[$cid]);
 $pencairanBulan=(float)scalar("SELECT COALESCE(SUM(amount),0) FROM withdrawals WHERE company_id=? AND MONTH(withdrawal_date)=MONTH(CURDATE()) AND YEAR(withdrawal_date)=YEAR(CURDATE())",[$cid]);
 $penjualanBulan=(float)scalar("SELECT COALESCE(SUM(total_amount),0) FROM sales WHERE company_id=? AND MONTH(sale_date)=MONTH(CURDATE()) AND YEAR(sale_date)=YEAR(CURDATE())",[$cid]);
+$pembiayaanBulan=(float)scalar("SELECT COALESCE(SUM(amount),0) FROM transactions WHERE company_id=? AND type='expense' AND MONTH(transaction_date)=MONTH(CURDATE()) AND YEAR(transaction_date)=YEAR(CURDATE())",[$cid]);
+$penjualanPending=(int)scalar("SELECT COUNT(*) FROM sales WHERE company_id=? AND status='pending' AND MONTH(sale_date)=MONTH(CURDATE()) AND YEAR(sale_date)=YEAR(CURDATE())",[$cid]);
 $beratBulan=(float)scalar("SELECT COALESCE(SUM(d.weight_kg),0) FROM deposit_details d JOIN deposits x ON x.id=d.deposit_id WHERE x.company_id=? AND MONTH(x.deposit_date)=MONTH(CURDATE()) AND YEAR(x.deposit_date)=YEAR(CURDATE())",[$cid]);
+$nilaiStok=(float)scalar("SELECT COALESCE(SUM(stock_kg*sell_price),0) FROM waste_types WHERE company_id=?",[$cid]);
 $saldoNasabah=(float)scalar("SELECT COALESCE(SUM(balance),0) FROM customers WHERE company_id=?",[$cid]);
 $jumlahWallet=(int)scalar("SELECT COUNT(*) FROM wallets WHERE company_id=?",[$cid]);
 $chartTotal=max(1,$setoranBulan+$penjualanBulan+$pencairanBulan);
 $depositPct=round($setoranBulan/$chartTotal*100);
 $salesPct=round($penjualanBulan/$chartTotal*100);
 $withdrawalPct=max(0,100-$depositPct-$salesPct);
+$netMovement=$penjualanBulan-$pencairanBulan-$pembiayaanBulan;
 
 $q=$pdo->prepare("SELECT d.*,c.name customer FROM deposits d JOIN customers c ON c.id=d.customer_id WHERE d.company_id=? ORDER BY d.deposit_date DESC,d.id DESC LIMIT 8");$q->execute([$cid]);$recentDeposit=$q->fetchAll();
 
@@ -25,18 +30,14 @@ require __DIR__.'/includes/header.php';?>
 <div class="page-intro">
   <div>
     <span class="eyebrow">Ringkasan operasional</span>
-    <h1>Dashboard Bank Sampah</h1>
+    <h1>Dashboard Minvesta</h1>
     <p class="page-subtitle">Pantau aktivitas, saldo, dan transaksi bulan berjalan dari satu tempat.</p>
-  </div>
-  <div class="intro-actions">
-    <a class="btn ghost" href="modules/customers.php">Kelola Nasabah</a>
-    <a class="btn" href="modules/deposit.php">+ Terima Setoran</a>
   </div>
 </div>
 
 <!-- Statistik Operasional -->
 <div class="section-head"><h2>Statistik Operasional Bulan Ini</h2><a class="btn secondary sm" href="modules/report_cashflow.php">Lihat Laporan</a></div>
-<div class="grid">
+<div class="grid dashboard-stats">
   <div class="card stat">
     <div class="label">👥 Nasabah Aktif</div>
     <div class="value"><?=number_format($nasabah)?></div>
@@ -53,9 +54,10 @@ require __DIR__.'/includes/header.php';?>
     <div class="label">📤 Penjualan Bulan Ini</div>
     <div class="value income"><?=rupiah($penjualanBulan)?></div>
   </div>
-</div>
-
-<div class="grid section" style="margin-top:22px">
+  <div class="card stat expense-card">
+    <div class="label">📉 Pembiayaan / Biaya</div>
+    <div class="value expense"><?=rupiah($pembiayaanBulan)?></div>
+  </div>
   <div class="card stat expense-card">
     <div class="label">💸 Pencairan Bulan Ini</div>
     <div class="value expense"><?=rupiah($pencairanBulan)?></div>
@@ -71,6 +73,18 @@ require __DIR__.'/includes/header.php';?>
   <div class="card stat">
     <div class="label">💳 Jumlah Dompet</div>
     <div class="value"><?=number_format($jumlahWallet)?></div>
+  </div>
+  <div class="card stat <?=($netMovement>=0?'income-card':'expense-card')?>">
+    <div class="label">📊 Pergerakan Bersih</div>
+    <div class="value <?=($netMovement>=0?'income':'expense')?>"><?=rupiah($netMovement)?></div>
+  </div>
+  <div class="card stat">
+    <div class="label">📦 Nilai Stok Siap Jual</div>
+    <div class="value"><?=rupiah($nilaiStok)?></div>
+  </div>
+  <div class="card stat <?=($penjualanPending?'expense-card':'')?>">
+    <div class="label">⏳ Penjualan Belum Lunas</div>
+    <div class="value"><?=number_format($penjualanPending)?></div>
   </div>
 </div>
 
