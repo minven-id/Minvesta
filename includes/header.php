@@ -47,6 +47,17 @@ svg{width:17px;height:17px;flex:0 0 auto}
   color:var(--c-sage-800);display:grid;place-items:center;font-weight:900;font-size:21px;
   box-shadow:0 8px 22px rgba(0,0,0,.20),0 0 0 1px rgba(255,255,255,.55) inset,0 2px 0 rgba(255,255,255,.6) inset;position:relative;overflow:hidden}
 .brand-mark img{width:100%;height:100%;object-fit:contain;border-radius:14px}
+.brand-mark img[src=""],
+.brand-mark img[src=""]{
+  display:none;
+}
+.brand-mark .fallback-text{
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  font-size:21px;
+  color:var(--c-sage-800);
+}
 .brand-mark::after{content:'';position:absolute;inset:2px;border-radius:12px;background:linear-gradient(135deg,rgba(255,255,255,.6),transparent 45%);pointer-events:none}
 .app{display:flex;min-height:100vh}
 body{margin:0;
@@ -263,7 +274,8 @@ function printReport() {
 <aside class="sidebar" id="app-sidebar">
   <div class="brand">
     <div class="brand-mark">
-      <img src="<?=$_rp?>assets/logo/ChatGPT Image 12 Sep 2026, 22.24.30.png" alt="Minvesta Logo">
+      <img src="<?=$_rp?>assets/logo/ChatGPT Image 12 Sep 2026, 22.24.30.png" alt="Minvesta Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+      <div class="fallback-text" style="display:none">M</div>
     </div>
     <div>
       <b>Minvesta</b>
